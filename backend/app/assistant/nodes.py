@@ -1,36 +1,109 @@
+from app.assistant.agent import agent
+from app.assistant.parser import parse_response
 from app.assistant.prompts import ATTENTION_PROMPT, SYSTEM_PROMPT, TRIAGE_PROMPT
-from app.assistant.schemas import AttentionOutput, InterviewOutput, TriageOutput
+from app.assistant.schemas import AttentionOutput, TriageOutput
 from app.assistant.state import ClinicalState
+from app.core.logger import logger
 from app.llm.client import llm
-from langchain_core.messages import AIMessage, SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 
-MAX_QUESTIONS = 5
+MAX_QUESTIONS = 10
 
 
-def interview_node(state: ClinicalState):
+def agent_node(state: ClinicalState):
+    messages = state.get("messages", [])
+    logger.info(
+        "[Node: Agent] Invocando agente con %d mensajes en historial", len(messages)
+    )
 
-    question_count = state.get("question_count", 0)
+    human_msg_count = sum(
+        1
+        for m in messages
+        if isinstance(m, HumanMessage) or getattr(m, "type", None) == "human"
+    )
 
-    if question_count >= MAX_QUESTIONS:
-        return {"interview_completed": True}
+    current_system_prompt = SYSTEM_PROMPT
+    if human_msg_count >= MAX_QUESTIONS:
+        current_system_prompt += f"\n\n--- INSTRUCCIÓN DE CIERRE OBLIGATORIO ---\nHas alcanzado el límite máximo de {MAX_QUESTIONS} mensajes del usuario. NO HAGAS NINGUNA PREGUNTA MÁS. Agradece amablemente al paciente por la información suministrada y confirma que la recolección de síntomas ha finalizado para proceder a la clasificación de triage."
 
-    messages = [SystemMessage(content=SYSTEM_PROMPT), *state["messages"]]
+    non_system_messages = [
+        m
+        for m in messages
+        if not isinstance(m, SystemMessage) and getattr(m, "type", None) != "system"
+    ]
+    messages_with_system = [
+        SystemMessage(content=current_system_prompt)
+    ] + non_system_messages
 
-    structured_llm = llm.with_structured_output(InterviewOutput)
+    response = agent.invoke(messages_with_system)
 
-    response = structured_llm.invoke(messages)
+    interview_completed = state.get("interview_completed", False)
+
+    if hasattr(response, "tool_calls") and response.tool_calls:
+        logger.info(
+            "[Node: Agent] El modelo determinó llamar a herramienta(s): %s",
+            [tc.get("name") for tc in response.tool_calls],
+        )
+    else:
+        logger.info("[Node: Agent] El modelo generó respuesta directa sin herramientas")
+        if human_msg_count >= MAX_QUESTIONS:
+            interview_completed = True
+            logger.info(
+                "[Node: Agent] Se alcanzó el número máximo de preguntas de entrevista (%d). Marcar entrevista finalizada.",
+                MAX_QUESTIONS,
+            )
+        elif response.content:
+            try:
+                parsed = parse_response(response.content)
+                if parsed.interview_completed:
+                    interview_completed = True
+                    logger.info(
+                        "[Node: Agent] El parser detectó que la entrevista ha finalizado."
+                    )
+            except Exception as e:
+                logger.warning(
+                    "[Node: Agent] No se pudo analizar fin de entrevista: %s", str(e)
+                )
 
     return {
-        "messages": [AIMessage(content=response.reply)],
-        "interview_completed": response.interview_completed,
-        "question_count": question_count + 1,
+        "messages": [response],
+        "interview_completed": interview_completed,
     }
 
 
+interview_node = agent_node
+
+
 def triage_node(state):
+    logger.info(
+        "[Node: Triage] Invocando análisis de triage con %d mensajes en historial",
+        len(state.get("messages", [])),
+    )
     structured_llm = llm.with_structured_output(TriageOutput)
-    messages = [SystemMessage(content=TRIAGE_PROMPT), *state["messages"]]
+
+    tool_messages = [
+        m
+        for m in state.get("messages", [])
+        if getattr(m, "type", None) == "tool" or m.__class__.__name__ == "ToolMessage"
+    ]
+    rag_context = (
+        "\n\n".join([str(m.content) for m in tool_messages])
+        if tool_messages
+        else "Sin protocolo RAG adicional."
+    )
+
+    messages = [
+        SystemMessage(
+            content=f"{TRIAGE_PROMPT}\n\n--- PROTOCOLOS CLÍNICOS RAG RELEVANTES ---\n{rag_context}"
+        ),
+        *state["messages"],
+    ]
     response = structured_llm.invoke(messages)
+    logger.info(
+        "[Node: Triage] Resultado obtenido -> Triage: %s | Prioridad: %s",
+        response.triage,
+        response.prioridad,
+    )
     return {
         "triage": response.triage,
         "prioridad": response.prioridad,
@@ -39,25 +112,45 @@ def triage_node(state):
 
 
 def attention_node(state, triage):
-
+    logger.info(
+        "[Node: Attention] Invocando generación de resumen y atención médica para Triage %s",
+        triage.get("triage"),
+    )
     structured_llm = llm.with_structured_output(AttentionOutput)
+
+    tool_messages = [
+        m
+        for m in state.get("messages", [])
+        if getattr(m, "type", None) == "tool" or m.__class__.__name__ == "ToolMessage"
+    ]
+    rag_context = (
+        "\n\n".join([str(m.content) for m in tool_messages])
+        if tool_messages
+        else "Sin protocolo RAG adicional."
+    )
 
     messages = [
         SystemMessage(
             content=f"""
             {ATTENTION_PROMPT}
 
-            La clasificación de triage ya fue realizada.
-
+            --- CLASIFICACIÓN DE TRIAGE REALIZADA ---
             Triage: {triage["triage"]}
             Prioridad: {triage["prioridad"]}
-            Justificación: {triage["triage_justification"]}
+            Justificación: {triage.get("triage_justification", "")}
+
+            --- PROTOCOLOS CLÍNICOS RAG UTILIZADOS ---
+            {rag_context}
             """
         ),
         *state["messages"],
     ]
 
     response = structured_llm.invoke(messages)
+    logger.info(
+        "[Node: Attention] Resumen clínico y sugerencia generados. Especialidad: %s",
+        response.especialidad_sugerida,
+    )
 
     return {
         "especialidad_sugerida": response.especialidad_sugerida,
