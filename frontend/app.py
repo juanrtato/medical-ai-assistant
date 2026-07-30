@@ -37,6 +37,37 @@ with st.sidebar:
 
         st.rerun()
 
+    st.divider()
+    st.header("📊 Logs del RAG")
+    all_rag_logs = []
+    for msg in st.session_state.get("messages", []):
+        if msg.get("rag_logs"):
+            all_rag_logs.extend(msg["rag_logs"])
+
+    if all_rag_logs:
+        st.caption(f"Total de consultas RAG ejecutadas: {len(all_rag_logs)}")
+        for idx, log in enumerate(all_rag_logs, 1):
+            with st.expander(f"📌 RAG #{idx}: {log['query']}"):
+                st.code(log["retrieved_content"], language="text")
+    else:
+        st.caption("Aún no se han realizado búsquedas RAG.")
+
+    st.divider()
+    st.header("📟 Consola del Sistema (Full Logs)")
+    all_system_logs = []
+    assistant_msgs = [m for m in st.session_state.get("messages", []) if m.get("system_logs")]
+    if assistant_msgs:
+        all_system_logs = list(assistant_msgs[-1]["system_logs"])
+
+    if st.session_state.get("attention_logs"):
+        all_system_logs.extend(st.session_state["attention_logs"])
+
+    if all_system_logs:
+        logs_text = "\n".join(all_system_logs)
+        st.code(logs_text, language="log")
+    else:
+        st.caption("Sin eventos registrados en consola.")
+
 
 # Inicializar sesión
 
@@ -58,7 +89,7 @@ if "attention" not in st.session_state:
 
 # Mostrar conversación
 
-for message in st.session_state.messages:
+for msg_idx, message in enumerate(st.session_state.messages):
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
@@ -91,6 +122,8 @@ if (
             {
                 "role": "assistant",
                 "content": assistant_response,
+                "rag_logs": response.get("rag_logs", []),
+                "system_logs": response.get("system_logs", []),
             }
         )
 
@@ -112,7 +145,9 @@ if st.session_state.conversation_finished:
     if st.button("Generar atención") and st.session_state.attention is None:
         try:
             with st.spinner("Generando atención médica estructurada..."):
-                st.session_state.attention = attention(st.session_state.session_id)
+                att_res = attention(st.session_state.session_id)
+                st.session_state.attention = att_res
+                st.session_state["attention_logs"] = att_res.get("system_logs", [])
 
             st.rerun()
 
