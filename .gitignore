@@ -43,3 +43,6 @@ ENV/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Chroma db files
+chroma_db/
