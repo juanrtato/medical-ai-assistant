@@ -1,12 +1,16 @@
 from app.assistant.nodes import (
+    agent_node,
     attention_node,
-    interview_node,
     triage_node,
 )
 from app.assistant.state import ClinicalState
+from app.assistant.tools import retrieve_medical_protocol
 from langchain_core.messages import HumanMessage
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph
+from langgraph.prebuilt import ToolNode, tools_condition
+
+tool_node = ToolNode([retrieve_medical_protocol])
 
 
 class ClinicalAssistant:
@@ -14,10 +18,12 @@ class ClinicalAssistant:
 
         builder = StateGraph(ClinicalState)
 
-        builder.add_node("interview", interview_node)
+        builder.add_node("agent", agent_node)
+        builder.add_node("tools", tool_node)
 
-        builder.add_edge(START, "interview")
-        builder.add_edge("interview", END)
+        builder.add_edge(START, "agent")
+        builder.add_conditional_edges("agent", tools_condition)
+        builder.add_edge("tools", "agent")
 
         memory = MemorySaver()
 
@@ -56,3 +62,5 @@ class ClinicalAssistant:
 
 
 assistant = ClinicalAssistant()
+clinical_graph = assistant.graph
+

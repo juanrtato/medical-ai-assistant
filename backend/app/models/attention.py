@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class AttentionRequest(BaseModel):
@@ -10,3 +10,5 @@ class AttentionResponse(BaseModel):
     prioridad: str
     especialidad_sugerida: str
     resumen_clinico: str
+    system_logs: list[str] = Field(default_factory=list)
+

@@ -1,42 +1,91 @@
 {
 	"info": {
 		"_postman_id": "emermedica-ai-api-collection",
-		"name": "Emermedica AI API",
+		"name": "Emermédica AI API",
+		"description": "Colección de solicitudes HTTP para los endpoints de Emermédica AI Assistant (Chat, Triage y Atención).",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "Root",
+			"name": "1. Chat - Enviar Mensaje",
 			"request": {
-				"method": "GET",
-				"header": [],
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"session_id\": \"session-12345\",\n  \"message\": \"Tengo dolor fuerte en el pecho y dificultad para respirar.\"\n}"
+				},
 				"url": {
-					"raw": "http://localhost:8000/",
+					"raw": "http://localhost:8000/api/chat",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8000",
 					"path": [
-						""
+						"api",
+						"chat"
 					]
 				}
 			}
 		},
 		{
-			"name": "Health Check",
+			"name": "2. Triage - Clasificar Nivel",
 			"request": {
-				"method": "GET",
-				"header": [],
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"session_id\": \"session-12345\"\n}"
+				},
 				"url": {
-					"raw": "http://localhost:8000/health",
+					"raw": "http://localhost:8000/api/triage",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8000",
 					"path": [
-						"health"
+						"api",
+						"triage"
+					]
+				}
+			}
+		},
+		{
+			"name": "3. Atención - Generar Resumen y Especialidad",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"session_id\": \"session-12345\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/attention",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"attention"
 					]
 				}
 			}

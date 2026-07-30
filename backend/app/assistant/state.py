@@ -7,6 +7,7 @@ from typing_extensions import TypedDict
 
 class ClinicalState(TypedDict):
     messages: Annotated[list[AnyMessage], add_messages]
+    protocol_context: str
     question_count: int
     interview_completed: bool
 

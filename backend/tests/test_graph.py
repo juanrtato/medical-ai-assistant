@@ -10,6 +10,6 @@ state = {
     "summary": None,
 }
 
-result = clinical_graph.invoke(state)
+result = clinical_graph.invoke(state, config={"configurable": {"thread_id": "test_thread"}})
 
 print(result)

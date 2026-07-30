@@ -6,3 +6,4 @@ llm = ChatOpenAI(
     api_key=settings.OPENAI_API_KEY,
     temperature=settings.TEMPERATURE,
 )
+
