@@ -1,6 +1,6 @@
 # Guía de Instalación, Configuración y Ejecución
 
-Esta guía detalla los pasos para poner en marcha el proyecto **Emermédica AI Assistant** en un entorno local o de producción.
+Esta guía detalla los pasos configurar y usar el proyecto **Emermédica AI Assistant** en un entorno local o de producción.
 
 ---
 
