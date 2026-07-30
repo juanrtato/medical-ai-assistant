@@ -14,15 +14,14 @@ Realizado por: **Juan Ricardo Albarracin Barbosa**
 
 ## ✨ Características Principales
 
-- ** Entrevista Clínica Guiada (OPQRST)**: Recopila de forma secuencial el síntoma principal, signos de alarma, tiempo de inicio, intensidad (escala 1 a 10) y antecedentes.
+- ** Entrevista Clínica Guiada **: Recopila de forma secuencial el síntoma principal, signos de alarma, tiempo de inicio, intensidad (escala 1 a 10) y antecedentes.
 - **🔍 RAG Médico Selectivo**: Invoca el protocolo clínico oficial en ChromaDB (`retrieve_medical_protocol`) únicamente cuando detecta síntomas principales, optimizando el consumo de tokens y el rendimiento.
 - **🏥 Clasificación de Triage Automatizada**:
   - **Triage I**: Emergencia inmediata (riesgo vital inminente).
   - **Triage II**: Urgencia (potencial riesgo vital o signos de alarma).
   - **Triage III**: Prioritario (síntomas moderados sin riesgo vital).
   - **Triage IV**: No urgente (síntomas leves / crónicos estables).
-- **📋 Generación de Atención Médica**: Sintetiza el motivo de consulta, signos de alarma, tiempo de evolución y la **especialidad médica sugerida**.
-- **📟 Consola de Auditoría en Vivo**: Muestra en tiempo real las consultas RAG realizadas y los eventos del sistema en la interfaz gráfica.
+- **📋 Generación de Atención Médica**: Resume el motivo de consulta, signos de alarma, tiempo de evolución y la **especialidad médica sugerida**.
 
 ---
 
