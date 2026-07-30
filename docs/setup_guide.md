@@ -6,7 +6,6 @@ Esta guía detalla los pasos configurar y usar el proyecto **Emermédica AI Assi
 
 ## 1. Requisitos Previos
 
-Asegúrate de contar con lo siguiente instalado en tu sistema:
 - **Python**: Versión 3.10 o superior (`python --version`).
 - **Git**: Para clonar el repositorio.
 - **OpenAI API Key**: Una clave de API activa de OpenAI para los modelos LLM y Embeddings (`gpt-4o-mini` y `text-embedding-ada-002` / `text-embedding-3-small`).
@@ -16,13 +15,13 @@ Asegúrate de contar con lo siguiente instalado en tu sistema:
 
 ## 2. Variables de Entorno
 
-Crea un archivo `.env` en la raíz del proyecto basándote en `.env.example`:
+Crear un archivo `.env` en la raíz del proyecto basándote en `.env.example`:
 
 ```bash
 cp .env.example .env
 ```
 
-Configura las siguientes variables en `.env`:
+Configurar las siguientes variables en `.env`:
 
 ```env
 PORT=8000
@@ -36,8 +35,6 @@ TEMPERATURE=0.2
 ---
 
 ## 3. Opción A: Ejecución Rápida con Docker (Recomendado)
-
-La forma más sencilla de ejecutar la aplicación completa (Backend + Frontend):
 
 ```bash
 # 1. Clonar el repositorio
@@ -97,8 +94,6 @@ El servidor backend se iniciará en `http://localhost:8000`.
 
 ### Paso 4: Iniciar el Frontend (Streamlit)
 
-En una nueva consola con el entorno virtual activado:
-
 ```bash
 cd frontend
 streamlit run app.py
@@ -108,8 +103,6 @@ La interfaz web se abrirá automáticamente en `http://localhost:8501`.
 ---
 
 ## 5. Ejecución de Pruebas Automáticas
-
-Puedes validar el funcionamiento del agente, el RAG y los nodos de triage ejecutando los scripts de prueba:
 
 ```bash
 # Probar recuperación RAG
