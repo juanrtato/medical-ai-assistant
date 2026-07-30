@@ -25,3 +25,7 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     reply: str
     conversation_finished: bool
+    rag_logs: list[dict] = Field(default_factory=list, description="Logs de las consultas RAG realizadas")
+    system_logs: list[str] = Field(default_factory=list, description="Logs completos de la ejecución del sistema")
+
+
