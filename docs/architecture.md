@@ -65,8 +65,6 @@ graph TD
 
 ## 3. Flujo RAG (Retrieval-Augmented Generation)
 
-Para garantizar la precisión clínica sin llamadas innecesarias ni costosas a la base vectorial:
-
 1. **Uso Selectivo**: El asistente sólo invoca `retrieve_medical_protocol` cuando el paciente menciona por primera vez un **síntoma clínico principal** (ej: *fiebre, dolor torácico, tos*).
 2. **Optimización de Query**: La herramienta formulan un query clínico conciso (`"fiebre protocolo signos de alarma"`).
 3. **Persistencia del Contexto**: Los fragmentos de protocolos recuperados se guardan como `ToolMessage` en la sesión y son consumidos posteriormente por los nodos de **Triage** y **Atención**.
