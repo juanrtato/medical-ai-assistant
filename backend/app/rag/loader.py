@@ -15,6 +15,10 @@ PERSIST_DIRECTORY = BASE_DIR / "chroma_db"
 
 
 def build_vectorstore():
+    """
+    Builds the Chroma vector store by loading medical protocols from the specified directory,
+    splitting them into chunks, generating embeddings, and saving them to disk.
+    """
     logger.info("[RAG Indexer] Cargando protocolos desde %s", PROTOCOLS_PATH)
     loader = DirectoryLoader(
         str(PROTOCOLS_PATH),
@@ -48,7 +52,9 @@ def build_vectorstore():
 
 
 def ensure_vectorstore_indexed():
-    """Verifica si la base de datos ChromaDB existe; si no existe o está vacía, la indexa automáticamente."""
+    """
+    Ensures that the vector store is indexed. If it's not indexed, it will index it automatically.
+    """
     if not PERSIST_DIRECTORY.exists() or not any(PERSIST_DIRECTORY.iterdir()):
         logger.info(
             "[RAG Indexer] No se encontró la base vectorial. Iniciando auto-indexación de protocolos..."

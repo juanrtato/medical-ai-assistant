@@ -7,7 +7,7 @@ from app.assistant.state import ClinicalState
 from app.assistant.tools import retrieve_medical_protocol
 from langchain_core.messages import HumanMessage
 from langgraph.checkpoint.memory import MemorySaver
-from langgraph.graph import END, START, StateGraph
+from langgraph.graph import START, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 
 tool_node = ToolNode([retrieve_medical_protocol])
@@ -30,6 +30,9 @@ class ClinicalAssistant:
         self.graph = builder.compile(checkpointer=memory)
 
     def chat(self, session_id: str, message: str):
+        """
+        Process a chat message from the user.
+        """
 
         state = {
             "messages": [HumanMessage(content=message)],
@@ -41,6 +44,9 @@ class ClinicalAssistant:
         )
 
     def _get_state(self, session_id: str):
+        """
+        Get the current state of a session.
+        """
 
         snapshot = self.graph.get_state(
             config={"configurable": {"thread_id": session_id}}
@@ -49,12 +55,18 @@ class ClinicalAssistant:
         return snapshot.values
 
     def triage(self, session_id: str):
+        """
+        Perform triage on the current state of a session.
+        """
 
         state = self._get_state(session_id)
 
         return triage_node(state)
 
     def attention(self, session_id: str, triage_result: dict):
+        """
+        Perform attention on the current state of a session.
+        """
 
         state = self._get_state(session_id)
 
@@ -63,4 +75,3 @@ class ClinicalAssistant:
 
 assistant = ClinicalAssistant()
 clinical_graph = assistant.graph
-

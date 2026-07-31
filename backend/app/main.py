@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+
 import uvicorn
 from app.api.router import api_router
 from app.core.exceptions import register_exception_handlers

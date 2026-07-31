@@ -7,10 +7,15 @@ class InterviewOutput(BaseModel):
     interview_completed: bool
 
 
-structured_parser = llm.with_structured_output(InterviewOutput)
+structured_parser = llm.with_structured_output(
+    InterviewOutput
+)  # Parser for structured interview responses
 
 
 def parse_response(text: str):
+    """
+    Parse the response from the assistant to determine if the interview has been completed.
+    """
     prompt = f"""
     Analiza la siguiente respuesta del auxiliar de enfermería digital.
 

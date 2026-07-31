@@ -11,6 +11,9 @@ MAX_QUESTIONS = 10
 
 
 def agent_node(state: ClinicalState):
+    """
+    Node that invokes the agent to process user messages and determine the next action.
+    """
     messages = state.get("messages", [])
     logger.info(
         "[Node: Agent] Invocando agente con %d mensajes en historial", len(messages)
@@ -75,6 +78,10 @@ interview_node = agent_node
 
 
 def triage_node(state):
+    """
+    Node that invokes the triage process based on the current state of the conversation.
+    """
+
     logger.info(
         "[Node: Triage] Invocando análisis de triage con %d mensajes en historial",
         len(state.get("messages", [])),
@@ -112,6 +119,9 @@ def triage_node(state):
 
 
 def attention_node(state, triage):
+    """
+    Node that invokes the attention process based on the current state of the conversation and the triage result.
+    """
     logger.info(
         "[Node: Attention] Invocando generación de resumen y atención médica para Triage %s",
         triage.get("triage"),
