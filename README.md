@@ -12,9 +12,11 @@ Realizado por: **Juan Ricardo Albarracin Barbosa**
 
 ---
 
+## 📌 Demo: [[Video](https://drive.google.com/file/d/1Avkh_7Wfx1BDvemQ9k_lCdKxnG0cfzZ2/view?usp=sharing)]
+
 ## ✨ Características Principales
 
-- ** Entrevista Clínica Guiada **: Recopila de forma secuencial el síntoma principal, signos de alarma, tiempo de inicio, intensidad (escala 1 a 10) y antecedentes.
+- **Entrevista Clínica Guiada**: Recopila de forma secuencial el síntoma principal, signos de alarma, tiempo de inicio, intensidad (escala 1 a 10) y antecedentes.
 - **🔍 RAG Médico Selectivo**: Invoca el protocolo clínico oficial en ChromaDB (`retrieve_medical_protocol`) únicamente cuando detecta síntomas principales, optimizando el consumo de tokens y el rendimiento.
 - **🏥 Clasificación de Triage Automatizada**:
   - **Triage I**: Emergencia inmediata (riesgo vital inminente).
